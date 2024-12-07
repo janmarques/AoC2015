@@ -1019,10 +1019,11 @@ foreach (var line in input.Split(Environment.NewLine))
 
 long Calculate(IEnumerable<long> enumerable)
 {
-    var a = enumerable.ElementAt(0);
-    var b = enumerable.ElementAt(1);
-    var c = enumerable.ElementAt(2);
-    return 2 * (a * b + a * c + b * c) + Math.Min(Math.Min(a*b, b*c), a*c);
+    var a = enumerable.OrderBy(x => x).ElementAt(0);
+    var b = enumerable.OrderBy(x => x).ElementAt(1);
+    var c = enumerable.OrderBy(x => x).ElementAt(2);
+    return (2 * a + 2 * b) + (a * b * c);
+    //return 2 * (a * b + a * c + b * c) + Math.Min(Math.Min(a*b, b*c), a*c);
 }
 
 timer.Stop();
