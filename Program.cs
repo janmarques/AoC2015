@@ -12,9 +12,17 @@ input = fullInput;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
-
-result += input.Count(x => x == '(');
-result -= input.Count(x => x == ')');
+var position = 0;
+foreach (var item in input)
+{
+    result++;
+    if (item == '(') { position++; }
+    if (item == ')') { position--; }
+    if (position == -1)
+    {
+        break;
+    }
+}
 
 timer.Stop();
 Console.WriteLine(result);
