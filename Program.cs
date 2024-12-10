@@ -90,6 +90,13 @@ foreach (var line in input.Replace(" would lose ", " -").Replace(" would gain", 
 }
 var cities = distances.Keys.SelectMany(key => new[] { key.Item1, key.Item2 }).Distinct().ToList();
 
+foreach (var city in cities)
+{
+    distances.Add((city, "me"), 0);
+    distances.Add(("me", city), 0);
+}
+cities.Add("me");
+
 var permutations = GetPermutations(cities, cities.Count).Select(x => x.ToArray()).ToList();
 IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
 {
@@ -106,7 +113,7 @@ int GetDistance(string[] cities)
     var count = 0;
     for (var i = 0; i < cities.Length; i++)
     {
-        count += distances[(cities[i], cities[(i + 1)% cities.Length])];
+        count += distances[(cities[i], cities[(i + 1) % cities.Length])];
         count += distances[(cities[(i + 1) % cities.Length], cities[i])];
     }
     return count;
