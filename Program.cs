@@ -502,13 +502,27 @@ Sue 500: cats: 2, goldfish: 9, children: 8";
 
 var detection =
 @"children: 3
-cats: 7
+cats: 8
+cats: 9
+cats: 10
 samoyeds: 2
-pomeranians: 3
+pomeranians: 2
+pomeranians: 1
+pomeranians: 0
 akitas: 0
 vizslas: 0
-goldfish: 5
-trees: 3
+goldfish: 4
+goldfish: 3
+goldfish: 2
+goldfish: 1
+goldfish: 0
+trees: 4
+trees: 5
+trees: 6
+trees: 7
+trees: 8
+trees: 9
+trees: 10
 cars: 2
 perfumes: 1";
 
