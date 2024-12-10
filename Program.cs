@@ -323,9 +323,9 @@ var result = 0;
 
 foreach (var line in input.Split(Environment.NewLine))
 {
-    result += line.Length;
-    var tmp = Regex.Unescape(new string(line.Skip(1).SkipLast(1).ToArray()));
-    result -= tmp.Length;
+    result -= line.Length;
+    var tmp = line.Replace("\"", "22").Replace("\\", "22");
+    result += tmp.Length +2;
 }
 
 timer.Stop();
