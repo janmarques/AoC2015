@@ -63,7 +63,7 @@ IEnumerable<IEnumerable<T>> GetPermutations<T>(IEnumerable<T> list, int length)
             (t1, t2) => t1.Concat(new T[] { t2 }));
 }
 
-result = permutations.Select(GetDistance).Min();
+result = permutations.Select(GetDistance).Max();
 int GetDistance(string[] cities)
 {
     var count = 0;
