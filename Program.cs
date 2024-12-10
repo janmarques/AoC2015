@@ -1,4 +1,6 @@
-﻿var fullInput =
+﻿using System.Text.RegularExpressions;
+
+var fullInput =
 """"
 "qxfcsmh"
 "ffsfyxbyuhqkpwatkjgudo"
@@ -313,7 +315,7 @@ var smallInput =
 var smallest = "";
 
 var input = smallInput;
-//input = fullInput;
+input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
@@ -322,8 +324,8 @@ var result = 0;
 foreach (var line in input.Split(Environment.NewLine))
 {
     result += line.Length;
-    var tmp = line.Replace("\\\"", "\\x00").Replace("\\\\", "aa");
-    result -= line.Length - 2 - line.Replace("\\\"", "\\x00").Replace("\\\\", "aa").Count(x => x == '\\') * 3;
+    var tmp = Regex.Unescape(new string(line.Skip(1).SkipLast(1).ToArray()));
+    result -= tmp.Length;
 }
 
 timer.Stop();
