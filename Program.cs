@@ -1,59 +1,59 @@
 ﻿var fullInput =
-@"";
+@"Sprinkles: capacity 2, durability 0, flavor -2, texture 0, calories 3
+Butterscotch: capacity 0, durability 5, flavor -3, texture 0, calories 3
+Chocolate: capacity 0, durability 0, flavor 5, texture -1, calories 8
+Candy: capacity 0, durability -1, flavor 0, texture 5, calories 8";
 
 var smallInput =
-@"Vixen can fly 8 km/s for 8 seconds, but then must rest for 53 seconds.
-Blitzen can fly 13 km/s for 4 seconds, but then must rest for 49 seconds.
-Rudolph can fly 20 km/s for 7 seconds, but then must rest for 132 seconds.
-Cupid can fly 12 km/s for 4 seconds, but then must rest for 43 seconds.
-Donner can fly 9 km/s for 5 seconds, but then must rest for 38 seconds.
-Dasher can fly 10 km/s for 4 seconds, but then must rest for 37 seconds.
-Comet can fly 3 km/s for 37 seconds, but then must rest for 76 seconds.
-Prancer can fly 9 km/s for 12 seconds, but then must rest for 97 seconds.
-Dancer can fly 37 km/s for 1 seconds, but then must rest for 36 seconds.";
+@"Butterscotch: capacity -1, durability -2, flavor 6, texture 3, calories 8
+Cinnamon: capacity 2, durability 3, flavor -2, texture -1, calories 3";
 
 var smallest = "";
 
 var input = smallInput;
-//input = fullInput;
+input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
 
-var reindeers = new Dictionary<(string name, int speed, int duration, int rest), int>();
-var points = new Dictionary<(string name, int speed, int duration, int rest), int>();
+var ingredients = input.Replace(",", "").Split(Environment.NewLine).Select(x => x.Split(' ')).Select(x => new[] { x[2], x[4], x[6], x[8] }).Select(x => x.Select(int.Parse).ToList()).ToList();
 
-foreach (var line in input.Replace(" can fly", "").Replace(" km/s for", "").Replace(" seconds, but then must rest for", "").Replace(" seconds.", "").Split(Environment.NewLine))
+var proportionsList = Distribute(100, ingredients.Count).Select(x => x.ToList()).ToList();
+var propertiesCount = ingredients.First().Count;
+
+foreach (var proportions in proportionsList)
 {
-    var split = line.Split(' ');
-    var name = split[0];
-    var numbers = split.Skip(1).Select(int.Parse).ToArray();
-    var key = (name, numbers[0], numbers[1], numbers[2]);
-    reindeers.Add(key, 0);
-    points.Add(key, 0);
+    var propertyDct = Enumerable.Range(0, propertiesCount).ToDictionary(x => x, x => new List<int>());
+    for (var i = 0; i < proportions.Count; i++)
+    {
+        for (int j = 0; j < propertiesCount; j++)
+        {
+            propertyDct[j].Add(proportions[i] * ingredients[i][j]);
+        }
+    }
+    var product = propertyDct.Select(x => Math.Max(0, x.Value.Sum())).Aggregate(1, (x, y) => x * y);
+    result = Math.Max(result, product);
 }
 
-for (int i = 0; i < 2503; i++)
+IEnumerable<List<int>> Distribute(int items, int buckets)
 {
-    foreach (var reindeer in reindeers)
+    if (buckets == 1)
     {
-        var key = reindeer.Key;
-        var isFlying = i % (key.duration + key.rest) < key.duration;
-        if (isFlying)
+        yield return new List<int>() { items };
+        yield break;
+    }
+    for (int i = 0; i < items; i++)
+    {
+        foreach (var item in Distribute(items - i, buckets - 1))
         {
-            reindeers[reindeer.Key] += key.speed;
+            var list = new List<int>() { i };
+            list.AddRange(item);
+            yield return list;
         }
     }
 
-    var furthest = reindeers.Max(x => x.Value);
-    foreach (var item in reindeers.Where(x => x.Value == furthest))
-    {
-        points[item.Key]++;
-    }
 }
-
-result = points.Max(x => x.Value);
 
 timer.Stop();
 Console.WriteLine(result);
