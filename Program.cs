@@ -1,42 +1,103 @@
-﻿using System.Text;
-
-var fullInput =
-@"1113222113";
+﻿var fullInput =
+@"";
 
 var smallInput =
-@"111221";
+@"vzbxkghb";
 
 var smallest = "";
 
+var x = Evaluate("abc".ToCharArray());
+
 var input = smallInput;
-input = fullInput;
+//input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
 
-var input2 = input.ToList();
-for (int j = 0; j < 50; j++)
+var input2 = input.ToCharArray();
+while (true)
 {
-    var targetString = new List<char>();
-    for (int i = 0; i < input2.Count; i++)
+    if (Evaluate(input2))
     {
-        var character = input2[i];
-        var chunk = input2.Skip(i).TakeWhile(x => x == input2[i]);
-        var count = chunk.Count();
-        i += count - 1;
-        targetString.AddRange(count.ToString());
-        targetString.Add(character);
+        break;
     }
-    input2 = targetString.ToList();
-
-    Console.WriteLine($"{j} {timer.ElapsedMilliseconds} {input2.Count}");
-    timer.Restart();
+    input2 = Increment(input2);
 }
 
-result = input2.Count;
+bool Evaluate(char[] input)
+{
+    var hasThree = false;
+    var threeStack = new Stack<char>(3);
+
+    var twoSet = new HashSet<char>();
+    var twoPrevious = default(char);
+    foreach (var item in input)
+    {
+        if (item == 'i' || item == 'o' || item == 'l')
+        {
+            return false;
+        }
+        if (!hasThree)
+        {
+            if (threeStack.TryPeek(out var previous))
+            {
+                if (previous + 1 == item)
+                {
+                    if (threeStack.Count == 2)
+                    {
+                        hasThree = true;
+                    }
+                    else
+                    {
+                        threeStack.Push(item);
+                    }
+                }
+                else
+                {
+                    threeStack.Clear();
+                    threeStack.Push(item);
+                }
+            }
+            else
+            {
+                threeStack.Push(item);
+            }
+        }
+        if (twoSet.Count < 2)
+        {
+            if (twoPrevious == item)
+            {
+                twoSet.Add(item);
+            }
+            else
+            {
+                twoPrevious = item;
+            }
+        }
+    }
+    return hasThree && twoSet.Count >= 2;
+}
+
+char[] Increment(char[] input)
+{
+    for (int i = input.Length - 1; i >= 0; i--)
+    {
+        input[i]++;
+        if (input[i] > 'z')
+        {
+            input[i] = 'a';
+        }
+        else
+        {
+            break;
+        }
+    }
+    return input;
+}
+
 timer.Stop();
-Console.WriteLine(result);
+Console.WriteLine(new string(input2));
 Console.WriteLine(timer.ElapsedMilliseconds + "ms");
 Console.ReadLine();
 
