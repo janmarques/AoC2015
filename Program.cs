@@ -333,7 +333,7 @@ gl AND gm -> go
 gl OR gm -> gn
 y AND ae -> ag
 hv OR hu -> hw
-1674 -> b
+46065 -> b
 ab AND ad -> ae
 NOT ac -> ad
 1 AND ht -> hu
@@ -378,6 +378,8 @@ ushort Not(ushort a) => (ushort)~a;
 {
 
 }
+
+memory["b"] = 46065;
 for (int i = 0; i < 10000; i++)
 //while (true)
 {
