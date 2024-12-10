@@ -12,18 +12,27 @@ input = fullInput;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0l;
-var x = 0;
-var y = 0;
+
+
 var visited = new HashSet<(int, int)>();
 visited.Add((0, 0));
-foreach (var item in input)
-{
-    if (item == '>') { x++; }
-    if (item == '<') { x--; }
-    if (item == '^') { y++; }
-    if (item == 'v') { y--; }
 
-    visited.Add((x, y));
+
+foreach (var group in input.Select((x, i) => (x, i)).GroupBy(x => x.i % 2 == 0))
+{
+    var x = 0;
+    var y = 0;
+
+    foreach (var itemX in group)
+    {
+        var item = itemX.x;
+        if (item == '>') { x++; }
+        if (item == '<') { x--; }
+        if (item == '^') { y++; }
+        if (item == 'v') { y--; }
+
+        visited.Add((x, y));
+    }
 }
 
 result = visited.Count();
