@@ -15,7 +15,7 @@ var result = 0l;
 
 while (true)
 {
-    if (CreateMD5(input + result.ToString()).StartsWith("00000"))
+    if (CreateMD5(input + result.ToString()).StartsWith("000000"))
     {
         break;
     }
