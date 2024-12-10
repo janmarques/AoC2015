@@ -17,7 +17,7 @@ var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
 
-var ingredients = input.Replace(",", "").Split(Environment.NewLine).Select(x => x.Split(' ')).Select(x => new[] { x[2], x[4], x[6], x[8] }).Select(x => x.Select(int.Parse).ToList()).ToList();
+var ingredients = input.Replace(",", "").Split(Environment.NewLine).Select(x => x.Split(' ')).Select(x => new[] { x[2], x[4], x[6], x[8], x[10] }).Select(x => x.Select(int.Parse).ToList()).ToList();
 
 var proportionsList = Distribute(100, ingredients.Count).Select(x => x.ToList()).ToList();
 var propertiesCount = ingredients.First().Count;
@@ -32,7 +32,8 @@ foreach (var proportions in proportionsList)
             propertyDct[j].Add(proportions[i] * ingredients[i][j]);
         }
     }
-    var product = propertyDct.Select(x => Math.Max(0, x.Value.Sum())).Aggregate(1, (x, y) => x * y);
+    if (propertyDct.Last().Value.Sum() != 500) { continue; }
+    var product = propertyDct.SkipLast(1).Select(x => Math.Max(0, x.Value.Sum())).Aggregate(1, (x, y) => x * y);
     result = Math.Max(result, product);
 }
 
