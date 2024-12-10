@@ -311,7 +311,7 @@ input = fullInput;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
-var grid = new bool[1000, 1000];
+var grid = new int[1000, 1000];
 
 foreach (var line in input.Replace(" o", "o").Split(Environment.NewLine))
 {
@@ -325,16 +325,16 @@ foreach (var line in input.Replace(" o", "o").Split(Environment.NewLine))
         {
             switch (op)
             {
-                case "turnon": grid[i, j] = true; break;
-                case "turnoff": grid[i, j] = false; break;
-                case "toggle": grid[i, j] = !grid[i, j]; break;
+                case "turnon": grid[i, j] = grid[i, j]+1; break;
+                case "turnoff": grid[i, j] = Math.Max(0, grid[i, j] - 1); break;
+                case "toggle": grid[i, j] = grid[i, j] + 2; break;
                 default: throw new Exception();
             }
         }
     }
 }
 
-result = grid.Cast<bool>().Count(x => x);
+result = grid.Cast<int>().Sum();
 
 timer.Stop();
 Console.WriteLine(result);
