@@ -1001,7 +1001,7 @@ phdqqxleqdjfgfbg
 cqfikbgxvjmnfncy";
 
 var smallInput =
-@"jchzalrnumimnmhp";
+@"uurcxstgmygtbstg";
 
 var smallest = "";
 
@@ -1021,10 +1021,27 @@ result = input.Split(Environment.NewLine).Count(IsNice);
 
 bool IsNice(string s)
 {
-    if (s.Count(x => vowels.Contains(x)) < 3) { return false; }
-    if (!doubleLetters.Any(x => s.Contains(x))) { return false; }
-    if (forbidden.Any(x => s.Contains(x))) { return false; }
-    return true;
+    var letterBetween = false;
+    for (int i = 0; i < s.Length - 2; i++)
+    {
+        if (s[i] == s[i + 2])
+        {
+            letterBetween = true;
+            break;
+        }
+    }
+    if (!letterBetween) { return false; }
+
+    for (int i = 0; i < s.Length - 2; i++)
+    {
+        var needle = new string(s.Skip(i).Take(2).ToArray());
+        if (new string(s.Skip(i + 2).ToArray()).Contains(needle))
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 timer.Stop();
