@@ -29,6 +29,11 @@ void Discover(JsonElement xx)
 {
     if (xx.ValueKind == JsonValueKind.Object)
     {
+        var objectProperties = xx.EnumerateObject();
+        if (objectProperties.Any(x => x.Value.ValueKind == JsonValueKind.String && x.Value.GetString() == "red"))
+        {
+            return;
+        }
         foreach (var item in xx.EnumerateObject())
         {
             Discover(item.Value);
