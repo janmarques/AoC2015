@@ -22,13 +22,16 @@ var timer = System.Diagnostics.Stopwatch.StartNew();
 var result = 0;
 
 var reindeers = new Dictionary<(string name, int speed, int duration, int rest), int>();
+var points = new Dictionary<(string name, int speed, int duration, int rest), int>();
 
 foreach (var line in input.Replace(" can fly", "").Replace(" km/s for", "").Replace(" seconds, but then must rest for", "").Replace(" seconds.", "").Split(Environment.NewLine))
 {
     var split = line.Split(' ');
     var name = split[0];
     var numbers = split.Skip(1).Select(int.Parse).ToArray();
-    reindeers.Add((name, numbers[0], numbers[1], numbers[2]), 0);
+    var key = (name, numbers[0], numbers[1], numbers[2]);
+    reindeers.Add(key, 0);
+    points.Add(key, 0);
 }
 
 for (int i = 0; i < 2503; i++)
@@ -42,9 +45,15 @@ for (int i = 0; i < 2503; i++)
             reindeers[reindeer.Key] += key.speed;
         }
     }
+
+    var furthest = reindeers.Max(x => x.Value);
+    foreach (var item in reindeers.Where(x => x.Value == furthest))
+    {
+        points[item.Key]++;
+    }
 }
 
-result = reindeers.Max(x => x.Value);
+result = points.Max(x => x.Value);
 
 timer.Stop();
 Console.WriteLine(result);
