@@ -2,7 +2,7 @@
 @"";
 
 var smallInput =
-@"vzbxkghb";
+@"vzbxxzaa";
 
 var smallest = "";
 
