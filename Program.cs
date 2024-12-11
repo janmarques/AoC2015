@@ -1,126 +1,65 @@
-﻿using System.Net.Http.Headers;
-using System.Runtime.ExceptionServices;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Runtime.ExceptionServices;
 
 var fullInput =
-@"Al => ThF
-Al => ThRnFAr
-B => BCa
-B => TiB
-B => TiRnFAr
-Ca => CaCa
-Ca => PB
-Ca => PRnFAr
-Ca => SiRnFYFAr
-Ca => SiRnMgAr
-Ca => SiTh
-F => CaF
-F => PMg
-F => SiAl
-H => CRnAlAr
-H => CRnFYFYFAr
-H => CRnFYMgAr
-H => CRnMgYFAr
-H => HCa
-H => NRnFYFAr
-H => NRnMgAr
-H => NTh
-H => OB
-H => ORnFAr
-Mg => BF
-Mg => TiMg
-N => CRnFAr
-N => HSi
-O => CRnFYFAr
-O => CRnMgAr
-O => HP
-O => NRnFAr
-O => OTi
-P => CaP
-P => PTi
-P => SiRnFAr
-Si => CaSi
-Th => ThCa
-Ti => BP
-Ti => TiTi
-e => HF
-e => NAl
-e => OMg
-
-CRnCaSiRnBSiRnFArTiBPTiTiBFArPBCaSiThSiRnTiBPBPMgArCaSiRnTiMgArCaSiThCaSiRnFArRnSiRnFArTiTiBFArCaCaSiRnSiThCaCaSiRnMgArFYSiRnFYCaFArSiThCaSiThPBPTiMgArCaPRnSiAlArPBCaCaSiRnFYSiThCaRnFArArCaCaSiRnPBSiRnFArMgYCaCaCaCaSiThCaCaSiAlArCaCaSiRnPBSiAlArBCaCaCaCaSiThCaPBSiThPBPBCaSiRnFYFArSiThCaSiRnFArBCaCaSiRnFYFArSiThCaPBSiThCaSiRnPMgArRnFArPTiBCaPRnFArCaCaCaCaSiRnCaCaSiRnFYFArFArBCaSiThFArThSiThSiRnTiRnPMgArFArCaSiThCaPBCaSiRnBFArCaCaPRnCaCaPMgArSiRnFYFArCaSiThRnPBPMgAr";
+@"";
 
 var smallInput =
-@"e => H
-e => O
-H => HO
-H => OH
-O => HH
-
-HOHOHO";
-
-
-
-//var replace = new Dictionary<string, string>()
-//{
-//    { "Al", "1" },
-//    { "Ca", "2" },
-//    { "Mg", "3" },
-//    { "Si", "4" },
-//    { "Th", "5" },
-//    { "Ti", "6" },
-//};
+@"";
 
 var smallest = "";
 
 var input = smallInput;
-input = fullInput;
+//input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = int.MaxValue;
+var result = 0;
 
-
-var lines = input.Split(Environment.NewLine);
-var pairs = lines.SkipLast(2).Select(x => x.Split(" => ")).Select(x => (source: x[0], target: x[1]));
-var original = lines.Last();
-
-var target = "e";
-
-
-var copy = original;
-var i = 0;
-while (true)
+foreach (var line in input.Split(Environment.NewLine))
 {
-    copy = original;
-    int stuck = 0;
-    var randomOrder = pairs.OrderByDescending(x => Guid.NewGuid()).ToList();
-    i++;
-    while (copy != target)
-    {
-        var pair = randomOrder.FirstOrDefault(x => copy.Contains(x.target));
-        if (pair == default)
-        {
-            goto next;
-        }
-        if (copy.Contains(pair.target))
-        {
-            copy = new Regex(pair.target).Replace(copy, pair.source, 1);
-            stuck++;
-        }
-        if (copy == target)
-        {
-            result = stuck;
-            goto end;
-        }
-    }
-next:;
-}
-end:;
 
+}
+
+// 750960 too high
+int i = 665280;
+while (i < 750960)
+{
+    var xx = PresentsForHouse(i);
+    if (xx > 29000000)
+    {
+        result = i;
+        break;
+    }
+    i++;
+}
+
+int PresentsForHouse(int number)
+{
+    return GetFactors(number).Sum() * 10;
+}
+
+IEnumerable<int> GetFactors(int number)
+{
+    for (int i = 1; i <= number / 2; i++)
+    {
+        if (number % i == 0) { yield return i; }
+    }
+    yield return number;
+}
 
 timer.Stop();
 Console.WriteLine(result);
 Console.WriteLine(timer.ElapsedMilliseconds + "ms");
 Console.ReadLine();
 
+void PrintGrid<T>(T[][] grid)
+{
+    for (int i = 0; i < grid.Length; i++)
+    {
+        for (int j = 0; j < grid[i].Length; j++)
+        {
+            Console.Write(grid[i][j]);
+        }
+        Console.WriteLine();
+    }
+}
