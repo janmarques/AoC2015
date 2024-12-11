@@ -1,45 +1,6 @@
-﻿var fullInput =
-@"";
-
-var smallInput =
-@"Weapons:    Cost  Damage  Armor
-Dagger        8     4       0
-Shortsword   10     5       0
-Warhammer    25     6       0
-Longsword    40     7       0
-Greataxe     74     8       0
-
-Armor:      Cost  Damage  Armor
-Leather      13     0       1
-Chainmail    31     0       2
-Splintmail   53     0       3
-Bandedmail   75     0       4
-Platemail   102     0       5
-
-Rings:      Cost  Damage  Armor
-Damage +1    25     1       0
-Damage +2    50     2       0
-Damage +3   100     3       0
-Defense +1   20     0       1
-Defense +2   40     0       2
-Defense +3   80     0       3";
-
-var smallest = "";
-
-var input = smallInput;
-//input = fullInput;
-//input = smallest;
-var timer = System.Diagnostics.Stopwatch.StartNew();
+﻿var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
-
-var lines = input.Split(Environment.NewLine);
-var weapons = lines[1..6].Select(ToItem).ToList();
-var armors = lines[8..13].Select(ToItem).ToList();
-armors.Add(new Item(0, 0, 0));
-var rings = lines[15..].Select(ToItem).ToList();
-rings.Add(new Item(0, 0, 0));
-rings.Add(new Item(0, 0, 0));
 
 Item ToItem(string arg)
 {
@@ -48,31 +9,163 @@ Item ToItem(string arg)
 }
 
 var staticSpells = new[] { "missile", "drain" };
-var effects = new[] { ("shield", 6, 113), ("poison", 6, 173), ("recharge", 5, 229) };
+var effects = new[] { ("shield", 6), ("poison", 6), ("recharge", 5) };
 var spells = staticSpells.Concat(effects.Select(x => x.Item1));
 
-var someSpells = new List<string>();
-for (int i = 0; i < 1000; i++)
+var costs = new Dictionary<string, int>()
 {
-    someSpells.Add(spells.OrderBy(x => Guid.NewGuid()).First());
-}
-//var me = new Player { Name = "me", Hp = 8, Damage = 5, Armor = 5 };
-//var boss = new Player { Name = "boss", Hp = 12, Damage = 7, Armor = 2 };
+    { "missile", 53},
+    { "drain", 73},
+    { "shield", 113},
+    { "poison", 173},
+    { "recharge", 229},
+};
 
 
-Player CreateBoss() => new Player { Name = "boss", Hp = 14, Damage = 8 };
-Player CreateMe() => new Player { Name = "me", Hp = 10, Mana = 250 };
 
-someSpells = new List<string>() { "recharge", "shield", "drain", "poison", "missile" };
-var xxx = Simulate(someSpells);
 
-bool Simulate(List<string> chosenSpells)
+Player CreateMe() => new Player { Name = "me", Hp = 50, Mana = 500 };
+Player CreateBoss() => new Player { Name = "boss", Hp = 103, Damage = 9 };
+
+while (true)
 {
+    var working = new List<string>()
+    {
+        "shield",
+"recharge"      ,
+"shield"        ,
+"shield"        ,
+"poison"        ,
+"shield"        ,
+"shield"        ,
+"recharge"      ,
+"poison"        ,
+"shield"        ,
+"poison"        ,
+"recharge"      ,
+"poison"        ,
+"shield"        ,
+"missile"       ,
+"recharge"      ,
+"poison"        ,
+"shield"        ,
+"shield"        ,
+"shield"        ,
+"missile"       ,
+"shield"        ,
+"recharge"      ,
+"shield"        ,
+"poison"        ,
+"poison"        ,
+"poison"        ,
+"missile"       ,
+"poison"        ,
+"shield"        ,
+"recharge"      ,
+"poison"        ,
+"recharge"      ,
+"shield"        ,
+"shield"        ,
+"drain"         ,
+"drain"         ,
+"drain"         ,
+"missile"       ,
+"missile"       ,
+"recharge"      ,
+"recharge"      ,
+"recharge"      ,
+"missile"       ,
+"drain"         ,
+"recharge"      ,
+"recharge"      ,
+"shield"        ,
+"recharge"      ,
+"recharge"      ,
+"recharge"      ,
+"missile"       ,
+"shield"        ,
+"recharge"      ,
+"recharge"      ,
+"poison"        ,
+"poison"        ,
+"poison"        ,
+"poison"        ,
+"drain"         ,
+"shield"        ,
+"recharge"      ,
+"shield"        ,
+"poison"        ,
+"poison"        ,
+"recharge"      ,
+"drain"         ,
+"drain"         ,
+"poison"        ,
+"recharge"      ,
+"recharge"      ,
+"shield"        ,
+"drain"         ,
+"drain"         ,
+"poison"        ,
+"missile"       ,
+"missile"       ,
+"drain"         ,
+"poison"        ,
+"poison"        ,
+"missile"       ,
+"shield"        ,
+"recharge"      ,
+"missile"       ,
+"shield"        ,
+"shield"        ,
+"poison"        ,
+"drain"         ,
+"recharge"      ,
+"drain"         ,
+"drain"         ,
+"shield"        ,
+"shield"        ,
+"drain"         ,
+"recharge"      ,
+"recharge"      ,
+"missile"       ,
+"recharge"      ,
+"shield"        ,
+"shield"
+    };
+
+    working.Reverse();
+    var someSpells = new Stack<string>(working);
+    //for (int i = 0; i < 100; i++)
+    //{
+    //    someSpells.Push(spells.OrderBy(x => Guid.NewGuid()).First());
+    //}
+
+
+    var copy = someSpells.ToList();
     var boss = CreateBoss();
     var me = CreateMe();
-    var activeEffects = new Dictionary<string, int>();
-    foreach (var spell in chosenSpells)
+    var xxx = Simulate(someSpells, me, boss);
+    if (boss.Hp < 15)
     {
+
+        Console.WriteLine(me);
+        Console.WriteLine(boss);
+        Console.WriteLine($"{result} {string.Join("|", copy.Take(result))}");
+        Console.WriteLine();
+    }
+    if (xxx)
+    {
+        break;
+    }
+}
+
+bool Simulate(Stack<string> chosenSpells, Player me, Player boss)
+{
+    result = 0;
+    var activeEffects = new Dictionary<string, int>();
+    while (true)
+    {
+        result++;
         void RunEffects()
         {
             me.Armor = 0;
@@ -95,6 +188,19 @@ bool Simulate(List<string> chosenSpells)
         {
             return true;
         }
+        if (me.Mana < costs.Min(x => x.Value))
+        {
+            return false;
+        }
+        string spell;
+        do
+        {
+            spell = chosenSpells.Pop();
+        } while (costs[spell] > me.Mana || activeEffects.ContainsKey(spell));
+        Console.WriteLine(spell);
+
+        me.Mana -= costs[spell];
+
         var effect = effects.SingleOrDefault(x => x.Item1 == spell);
         if (effect != default)
         {
@@ -105,17 +211,14 @@ bool Simulate(List<string> chosenSpells)
             else
             {
                 activeEffects[spell] = effect.Item2;
-                me.Mana -= effect.Item3;
             }
         }
         else if (spell == "missile")
         {
-            me.Mana -= 53;
             boss.Hp -= 4;
         }
         else if (spell == "drain")
         {
-            me.Mana -= 73;
             boss.Hp -= 2;
             me.Hp += 2;
         }
@@ -123,6 +226,8 @@ bool Simulate(List<string> chosenSpells)
         {
             throw new Exception();
         }
+
+
 
         if (boss.Hp <= 0)
         {
@@ -173,4 +278,6 @@ class Player
     public int Mana { get; set; }
     public int Damage { get; set; }
     public int Armor { get; set; }
+
+    public override string ToString() => $"{Name} {Hp}hp {Mana}m";
 }
