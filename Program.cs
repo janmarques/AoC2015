@@ -1,6 +1,7 @@
 ﻿var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var result = 0;
+var i = 0;
 
 Item ToItem(string arg)
 {
@@ -68,7 +69,7 @@ while (true)
 
         Console.WriteLine(me);
         Console.WriteLine(boss);
-        Console.WriteLine($"{result} {string.Join("|", copy.Take(result))}");
+        Console.WriteLine($"{result} {i} {string.Join("|", copy.Take(result))}");
         Console.WriteLine();
     }
     if (xxx)
@@ -77,13 +78,15 @@ while (true)
     }
 }
 
+// 2854 too high
+
 bool Simulate(Stack<string> chosenSpells, Player me, Player boss)
 {
     result = 0;
     var activeEffects = new Dictionary<string, int>();
     while (true)
     {
-        result++;
+        i++;
         void RunEffects()
         {
             me.Armor = 0;
@@ -118,6 +121,7 @@ bool Simulate(Stack<string> chosenSpells, Player me, Player boss)
         Console.WriteLine($"\"{spell}\",");
 
         me.Mana -= costs[spell];
+        result += costs[spell];
 
         var effect = effects.SingleOrDefault(x => x.Item1 == spell);
         if (effect != default)
