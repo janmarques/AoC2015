@@ -36,6 +36,11 @@ while (true)
 "poison",
 "shield",
 "recharge",
+"missile",
+"poison",
+"shield",
+"recharge",
+"missile",
 "poison",
 "shield",
 "recharge",
@@ -44,14 +49,6 @@ while (true)
 "recharge",
 "poison",
 "shield",
-"recharge",
-"poison",
-"shield",
-"recharge",
-"poison",
-"shield",
-"recharge"
-
     };
 
     working.Reverse();
