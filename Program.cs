@@ -50,7 +50,6 @@ Item ToItem(string arg)
 var staticSpells = new[] { "missile", "drain" };
 var effects = new[] { ("shield", 6, 113), ("poison", 6, 173), ("recharge", 5, 229) };
 var spells = staticSpells.Concat(effects.Select(x => x.Item1));
-var activeEffects = new Dictionary<string, int>();
 
 var someSpells = new List<string>();
 for (int i = 0; i < 1000; i++)
@@ -61,16 +60,17 @@ for (int i = 0; i < 1000; i++)
 //var boss = new Player { Name = "boss", Hp = 12, Damage = 7, Armor = 2 };
 
 
-Player CreateBoss() => new Player { Name = "boss", Hp = 13, Damage = 8 };
+Player CreateBoss() => new Player { Name = "boss", Hp = 14, Damage = 8 };
 Player CreateMe() => new Player { Name = "me", Hp = 10, Mana = 250 };
 
-someSpells = new List<string>() { "poison", "missile" };
+someSpells = new List<string>() { "recharge", "shield", "drain", "poison", "missile" };
 var xxx = Simulate(someSpells);
 
 bool Simulate(List<string> chosenSpells)
 {
     var boss = CreateBoss();
     var me = CreateMe();
+    var activeEffects = new Dictionary<string, int>();
     foreach (var spell in chosenSpells)
     {
         void RunEffects()
@@ -117,6 +117,7 @@ bool Simulate(List<string> chosenSpells)
         {
             me.Mana -= 73;
             boss.Hp -= 2;
+            me.Hp += 2;
         }
         else
         {
