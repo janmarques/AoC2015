@@ -129,6 +129,7 @@ for (int i = 0; i < steps; i++)
     {
         for (int y = 0; y < grid.Length; y++)
         {
+            if ((x == 0 || x == grid.Length - 1) && (y == 0 || y == grid.Length - 1)) { continue; }
             var neighboursOnCount = 0;
             foreach (var neighbour in neighbours)
             {
