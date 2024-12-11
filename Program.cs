@@ -20,9 +20,8 @@ foreach (var line in input.Split(Environment.NewLine))
 
 }
 
-// 750960 too high
 int i = 665280;
-while (i < 750960)
+while (true)
 {
     var xx = PresentsForHouse(i);
     if (xx > 29000000)
@@ -32,10 +31,18 @@ while (i < 750960)
     }
     i++;
 }
-
+// 705600?
 int PresentsForHouse(int number)
 {
-    return GetFactors(number).Sum() * 10;
+    var sum = 0;
+    foreach (var item in GetFactors(number))
+    {
+        if (item * 50 >= number)
+        {
+            sum += item * 11;
+        }
+    }
+    return sum;
 }
 
 IEnumerable<int> GetFactors(int number)
