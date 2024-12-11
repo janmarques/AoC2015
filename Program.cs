@@ -86,7 +86,8 @@ IEnumerable<T[]> GetCombinations<T>(List<T> source)
 
 }
 
-result = cache[volume].Count;
+var minContainers = cache[volume].Min(x => x.Count);
+result = cache[volume].Count(x => x.Count == minContainers);
 timer.Stop();
 Console.WriteLine(result);
 Console.WriteLine(timer.ElapsedMilliseconds + "ms");
