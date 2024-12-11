@@ -1,5 +1,7 @@
 ﻿using System.Net.Http.Headers;
+using System.Runtime.ExceptionServices;
 using System.Text;
+using System.Text.RegularExpressions;
 
 var fullInput =
 @"Al => ThF
@@ -59,15 +61,15 @@ HOHOHO";
 
 
 
-var replace = new Dictionary<string, string>()
-{
-    { "Al", "1" },
-    { "Ca", "2" },
-    { "Mg", "3" },
-    { "Si", "4" },
-    { "Th", "5" },
-    { "Ti", "6" },
-};
+//var replace = new Dictionary<string, string>()
+//{
+//    { "Al", "1" },
+//    { "Ca", "2" },
+//    { "Mg", "3" },
+//    { "Si", "4" },
+//    { "Th", "5" },
+//    { "Ti", "6" },
+//};
 
 var smallest = "";
 
@@ -76,41 +78,59 @@ input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = 0;
+var result = int.MaxValue;
 
-foreach (var item in replace)
-{
-    input = input.Replace(item.Key, item.Value);
-}
+//foreach (var item in replace)
+//{
+//    input = input.Replace(item.Key, item.Value);
+//}
 
 var lines = input.Split(Environment.NewLine);
-var pairs = lines.SkipLast(2).Select(x => x.Split(" => ")).Select(x => (source: x[0][0], target: x[1])).ToArray();
+var inversePairs = lines.SkipLast(2).Select(x => x.Split(" => ")).Select(x => (source: x[1], target: x[0])).GroupBy(x => x.target, x => x.source).ToDictionary(x => x.Key, x => x.ToList());
+var pairs = lines.SkipLast(2).Select(x => x.Split(" => ")).Select(x => (source: x[0], target: x[1]));
 var original = lines.Last();
 
-var molecules = new HashSet<string>() { "e" };
+var target = "e";
+var molecules = new HashSet<string>() { original };
 
+molecules = inversePairs.Where(x => x.Key != target).SelectMany(x => x.Value).ToHashSet();
+var distances = inversePairs[target].ToDictionary(x => x, x => 1);
+
+var xxx = new HashSet<int>();
+
+var copy = original;
 while (true)
 {
-    var newMolecules = new HashSet<string>();
-
-    foreach (var molecule in molecules)
+    copy = original;
+    int stuck = 0;
+    var randomOrder = pairs.OrderByDescending(x => Guid.NewGuid()).ToList();
+    while (copy != target)
     {
-        foreach (var pair in pairs)
+        var pair = randomOrder.FirstOrDefault(x => copy.Contains(x.target));
+        if (pair == default)
         {
-            foreach (var item in molecule.Select((x, i) => (x, i)).Where((x) => x.x == pair.source))
-            {
-                var sb = new StringBuilder(molecule);
-                sb.Remove(item.i, 1);
-                sb.Insert(item.i, pair.target);
-                newMolecules.Add(sb.ToString());
-            }
+            goto end;
+        }
+        if (copy.Contains(pair.target))
+        {
+            copy = new Regex(pair.target).Replace(copy, pair.source, 1);
+            stuck++;
+        }
+        if (copy == target)
+        {
+            xxx.Add(stuck);
+            break;
         }
     }
-    result++;
-    molecules = newMolecules;
-    if (molecules.Contains(original))
+end:;
+}
+
+
+while (molecules.Any())
+{
+    var newMolecules = molecules.ToHashSet();
+    foreach (var molecule in molecules)
     {
-        break;
     }
 }
 
