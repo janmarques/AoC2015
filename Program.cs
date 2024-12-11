@@ -70,7 +70,7 @@ var replace = new Dictionary<string, string>()
 var smallest = "";
 
 var input = smallInput;
-//input = fullInput;
+input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
@@ -87,7 +87,18 @@ var original = lines.Last();
 
 var molecules = new HashSet<string>();
 
-Discover(new StringBuilder(), 0);
+foreach (var pair in pairs)
+{
+    foreach (var item in original.Select((x, i) => (x, i)).Where((x) => x.x == pair.source))
+    {
+        var sb = new StringBuilder(original);
+        sb.Remove(item.i, 1);
+        sb.Insert(item.i, pair.target);
+        molecules.Add(sb.ToString());
+    }
+}
+
+//Discover(new StringBuilder(), 0);
 
 void Discover(StringBuilder molecule, int cursor)
 {
