@@ -47,55 +47,103 @@ Item ToItem(string arg)
     return new Item(split.ElementAt(1), split.ElementAt(2), split.ElementAt(3));
 }
 
+var staticSpells = new[] { "missile", "drain" };
+var effects = new[] { ("shield", 6, 113), ("poison", 6, 173), ("recharge", 5, 229) };
+var spells = staticSpells.Concat(effects.Select(x => x.Item1));
+var activeEffects = new Dictionary<string, int>();
+
+var someSpells = new List<string>();
+for (int i = 0; i < 1000; i++)
+{
+    someSpells.Add(spells.OrderBy(x => Guid.NewGuid()).First());
+}
 //var me = new Player { Name = "me", Hp = 8, Damage = 5, Armor = 5 };
 //var boss = new Player { Name = "boss", Hp = 12, Damage = 7, Armor = 2 };
 
 
-Player CreateBoss() => new Player { Name = "boss", Hp = 103, Damage = 9, Armor = 2 };
-Player CreateMe() => new Player { Name = "me", Hp = 100, Damage = 0, Armor = 0 };
+Player CreateBoss() => new Player { Name = "boss", Hp = 13, Damage = 8 };
+Player CreateMe() => new Player { Name = "me", Hp = 10, Mana = 250 };
 
-foreach (var weapon in weapons)
-    foreach (var armor in armors)
-        foreach (var ring1 in rings)
-            foreach (var ring2 in rings)
-            {
-                if (ring1 == ring2) { continue; }
-                var items = new[] { weapon, armor, ring1, ring2 };
-                var boss = CreateBoss();
-                var me = CreateMe();
-                me.Armor += items.Sum(x => x.armor);
-                me.Damage += items.Sum(x => x.damage);
-                var cost = items.Sum(x => x.cost);
-                var win = SimulateFight(me, boss);
-                if (!win)
-                {
-                    result = Math.Max(cost, result);
-                }
-            }
+someSpells = new List<string>() { "poison", "missile" };
+var xxx = Simulate(someSpells);
 
-
-bool SimulateFight(Player me, Player boss)
+bool Simulate(List<string> chosenSpells)
 {
-    while (true)
+    var boss = CreateBoss();
+    var me = CreateMe();
+    foreach (var spell in chosenSpells)
     {
-        Attack(me, boss);
+        void RunEffects()
+        {
+            me.Armor = 0;
+            foreach (var activeEffect in activeEffects)
+            {
+                switch (activeEffect.Key)
+                {
+                    case "shield": me.Armor = 7; break;
+                    case "poison": boss.Hp -= 3; break;
+                    case "recharge": me.Mana += 101; break;
+                    default: throw new Exception();
+                }
+                activeEffects[activeEffect.Key]--;
+            }
+            activeEffects = activeEffects.Where(x => x.Value > 0).ToDictionary();
+        }
+
+        RunEffects();
         if (boss.Hp <= 0)
         {
             return true;
         }
-        Attack(boss, me);
+        var effect = effects.SingleOrDefault(x => x.Item1 == spell);
+        if (effect != default)
+        {
+            if (activeEffects.ContainsKey(spell))
+            {
+                continue; // invalid random spell
+            }
+            else
+            {
+                activeEffects[spell] = effect.Item2;
+                me.Mana -= effect.Item3;
+            }
+        }
+        else if (spell == "missile")
+        {
+            me.Mana -= 53;
+            boss.Hp -= 4;
+        }
+        else if (spell == "drain")
+        {
+            me.Mana -= 73;
+            boss.Hp -= 2;
+        }
+        else
+        {
+            throw new Exception();
+        }
+
+        if (boss.Hp <= 0)
+        {
+            return true;
+        }
+
+
+        RunEffects();
+        if (boss.Hp <= 0)
+        {
+            return true;
+        }
+        me.Hp -= Math.Max(1, boss.Damage - me.Armor);
+
+
         if (me.Hp <= 0)
         {
             return false;
         }
     }
+    throw new Exception();
 }
-
-void Attack(Player attacker, Player victim)
-{
-    victim.Hp -= Math.Max(1, attacker.Damage - victim.Armor);
-}
-
 
 
 timer.Stop();
@@ -121,6 +169,7 @@ class Player
 {
     public string Name { get; set; }
     public int Hp { get; set; }
-    public int Armor { get; set; }
+    public int Mana { get; set; }
     public int Damage { get; set; }
+    public int Armor { get; set; }
 }
