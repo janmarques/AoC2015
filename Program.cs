@@ -31,7 +31,6 @@ while (true)
 {
     var working = new List<string>()
     {
-"shield",
 "recharge",
 "poison",
 "shield",
