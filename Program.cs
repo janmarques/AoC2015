@@ -31,7 +31,7 @@ var input = smallInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = int.MaxValue;
+var result = 0;
 
 var lines = input.Split(Environment.NewLine);
 var weapons = lines[1..6].Select(ToItem).ToList();
@@ -67,9 +67,9 @@ foreach (var weapon in weapons)
                 me.Damage += items.Sum(x => x.damage);
                 var cost = items.Sum(x => x.cost);
                 var win = SimulateFight(me, boss);
-                if (win)
+                if (!win)
                 {
-                    result = Math.Min(cost, result);
+                    result = Math.Max(cost, result);
                 }
             }
 
