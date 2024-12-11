@@ -49,11 +49,13 @@ e => OMg
 CRnCaSiRnBSiRnFArTiBPTiTiBFArPBCaSiThSiRnTiBPBPMgArCaSiRnTiMgArCaSiThCaSiRnFArRnSiRnFArTiTiBFArCaCaSiRnSiThCaCaSiRnMgArFYSiRnFYCaFArSiThCaSiThPBPTiMgArCaPRnSiAlArPBCaCaSiRnFYSiThCaRnFArArCaCaSiRnPBSiRnFArMgYCaCaCaCaSiThCaCaSiAlArCaCaSiRnPBSiAlArBCaCaCaCaSiThCaPBSiThPBPBCaSiRnFYFArSiThCaSiRnFArBCaCaSiRnFYFArSiThCaPBSiThCaSiRnPMgArRnFArPTiBCaPRnFArCaCaCaCaSiRnCaCaSiRnFYFArFArBCaSiThFArThSiThSiRnTiRnPMgArFArCaSiThCaPBCaSiRnBFArCaCaPRnCaCaPMgArSiRnFYFArCaSiThRnPBPMgAr";
 
 var smallInput =
-@"H => HO
+@"e => H
+e => O
+H => HO
 H => OH
 O => HH
 
-HOH";
+HOHOHO";
 
 
 
@@ -85,45 +87,63 @@ var lines = input.Split(Environment.NewLine);
 var pairs = lines.SkipLast(2).Select(x => x.Split(" => ")).Select(x => (source: x[0][0], target: x[1])).ToArray();
 var original = lines.Last();
 
-var molecules = new HashSet<string>();
+var molecules = new HashSet<string>() { "e" };
 
-foreach (var pair in pairs)
+while (true)
 {
-    foreach (var item in original.Select((x, i) => (x, i)).Where((x) => x.x == pair.source))
+    var newMolecules = new HashSet<string>();
+
+    foreach (var molecule in molecules)
     {
-        var sb = new StringBuilder(original);
-        sb.Remove(item.i, 1);
-        sb.Insert(item.i, pair.target);
-        molecules.Add(sb.ToString());
+        foreach (var pair in pairs)
+        {
+            foreach (var item in molecule.Select((x, i) => (x, i)).Where((x) => x.x == pair.source))
+            {
+                var sb = new StringBuilder(molecule);
+                sb.Remove(item.i, 1);
+                sb.Insert(item.i, pair.target);
+                newMolecules.Add(sb.ToString());
+            }
+        }
+    }
+    result++;
+    molecules = newMolecules;
+    if (molecules.Contains(original))
+    {
+        break;
     }
 }
 
-//Discover(new StringBuilder(), 0);
+//var maxSteps = int.MaxValue;
 
-void Discover(StringBuilder molecule, int cursor)
-{
-    if (cursor == original.Length - 1)
-    {
-        molecules.Add(molecule.ToString());
-        return;
-    }
-    var hasVariant = false;
-    var @char = original[cursor];
-    foreach (var item in pairs.Where(x => x.source == @char))
-    {
-        hasVariant = true;
-        var copy = new StringBuilder(molecule.Length);
-        copy.Append(molecule);
-        copy.Append(item.target);
-        Discover(copy, cursor + 1);
-    }
-    if (!hasVariant)
-    {
-        molecule.Append(original[cursor]);
-        Discover(molecule, cursor + 1);
-    }
-}
+//Discover("e", 0, 0);
 
+//void Discover(string molecule, int steps, int cursor)
+//{
+//    if (molecule.Length > 30 && !target.StartsWith(molecule)) { return; }
+//    if (steps > maxSteps) { return; }
+//    if (molecule == target)
+//    {
+//        maxSteps = Math.Min(maxSteps, steps);
+//        return;
+//    }
+//    var hasVariant = false;
+//    var @char = molecule[cursor];
+//    foreach (var item in pairs.Where(x => x.source == @char))
+//    {
+//        hasVariant = true;
+//        var sb = new StringBuilder(molecule);
+//        sb.Remove(cursor, 1);
+//        sb.Insert(cursor, item.target);
+//        Discover(sb.ToString(), steps+1, 0);
+//    }
+//    if (!hasVariant)
+//    {
+//        Discover(molecule, steps + 1, cursor + 1);
+//    }
+//}
+
+//result = maxSteps;
 
 timer.Stop();
 Console.WriteLine(result);
