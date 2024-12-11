@@ -50,8 +50,6 @@ while (true)
 "missile",
 "poison",
 "missile",
-"missile"
-
     };
 
     working.Reverse();
@@ -66,7 +64,7 @@ while (true)
     var boss = CreateBoss();
     var me = CreateMe();
     var xxx = Simulate(someSpells, me, boss);
-    if (boss.Hp < 15)
+    if (boss.Hp <= 0)
     {
 
         Console.WriteLine(me);
