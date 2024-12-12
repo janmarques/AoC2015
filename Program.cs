@@ -1,4 +1,6 @@
-﻿var fullInput =
+﻿using System.Linq;
+
+var fullInput =
 @"1
 2
 3
@@ -51,66 +53,68 @@ var timer = System.Diagnostics.Stopwatch.StartNew();
 var result = 0ul;
 
 
-var sss = Product(new HashSet<ulong> { 11, 9 });
 
-var numbers = input.Split(Environment.NewLine).Select(ulong.Parse).ToArray();
-var sum = Sum(numbers);
+var numbers = input.Split(Environment.NewLine).Select(int.Parse).ToArray();
+var sum = numbers.Sum();
 if (sum % 3 != 0) { throw new Exception(); }
 var target = sum / 3;
+int ss = 0;
+int take = 100000;
 
-var qqq = Enumerable.Range(0,100000).Select(x => numbers.OrderBy(x => Guid.NewGuid()).Take(5)).Where(x => Sum(x) == target).ToList();
+var groupsAA = TryMakeGroup(new List<int>(), numbers.OrderByDescending(x => x).ToList(), 0);
+var groups = Sanizite(take, groupsAA);
 
-var groups = TryMakeGroup(new HashSet<ulong>(), 0).Take(100_000_000).Select(x => (set: x, count: x.Count, entanglement: Product(x), hash: Hash(x))).DistinctBy(x => x.hash).OrderBy(x => x.count).ThenBy(x => x.entanglement).ToList();
-foreach (var item in groups)
+foreach (var grp in groups)
 {
-    var forbidden = new HashSet<ulong>(item.set);
-    for (int i = 0; i < 2; i++)
+    var others1 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).OrderByDescending(x => x).ToList(), 0));
+
+    foreach (var other1 in others1)
     {
-        var compatible = groups.Where(x => forbidden.All(y => x.entanglement % y != 0)).FirstOrDefault();
-        if (compatible == default) { goto next; }
-        foreach (var item1 in compatible.set)
+        var others2 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).OrderByDescending(x => x).ToList(), 0));
+
+        if (others2.Any())
         {
-            forbidden.Add(item1);
+            result = grp.entanglement;
+            goto end;
         }
     }
-    break;
-next:;
 }
+end:;
 
-ulong Product(HashSet<ulong> set) => set.Aggregate(1ul, (x, y) => y = x * y);
-string Hash(HashSet<ulong> set) => string.Join("|", set.OrderBy(x => x));
-ulong Sum(IEnumerable<ulong> set) => set.Aggregate(0ul, (x, y) => y = x + y);
+ulong Product(List<int> set) => set.Aggregate(1ul, (x, y) => x = x * (ulong)y);
+string Hash(List<int> set) => string.Join("|", set.OrderBy(x => x));
+int Sum(IEnumerable<int> set) => set.Aggregate(0, (x, y) => y = x + y);
 
-IEnumerable<HashSet<ulong>> TryMakeGroup(HashSet<ulong> used, ulong sum)
+
+IEnumerable<List<int>> TryMakeGroup(List<int> used, List<int> left, int sum)
 {
-    foreach (var number in numbers)
+    foreach (var number in left)
     {
-        if (used.Contains(number))
+        var newSum = sum + number;
+        var newUsed = used.Concat(new[] { number }).ToList();
+        if (newSum > target)
         {
             continue;
         }
-        var newUsed = new HashSet<ulong>(used);
-        newUsed.Add(number);
-        var newSum = sum + number;
-        if (newSum > target)
+        else if (newSum == target)
         {
-        }
-        else
-        if (newSum == target)
-        {
+            ss++;
+            if (ss % 10000 == 0)
+            {
+                Console.WriteLine((double)ss / take);
+            }
             yield return newUsed;
         }
         else
         {
-            foreach (var item in TryMakeGroup(newUsed, newSum))
+            var newLeft = left.Where(x => x != number && x <= newSum).ToList();
+            foreach (var item in TryMakeGroup(newUsed, newLeft, newSum))
             {
                 yield return item;
             }
         }
     }
 }
-
-
 
 timer.Stop();
 Console.WriteLine(result); // 42093166160081598 too high
@@ -127,4 +131,14 @@ void PrintGrid<T>(T[][] grid)
         }
         Console.WriteLine();
     }
+}
+
+List<(List<int> set, int count, ulong entanglement, string hash)> Sanizite(int take, IEnumerable<List<int>> groupsAA)
+{
+    return groupsAA.Take(take)
+    .Select(x => (set: x, count: x.Count, entanglement: Product(x), hash: Hash(x)))
+    .DistinctBy(x => x.hash)
+    .OrderBy(x => x.count)
+    .ThenBy(x => x.entanglement)
+    .ToList();
 }
