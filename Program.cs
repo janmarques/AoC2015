@@ -61,7 +61,7 @@ var timer = System.Diagnostics.Stopwatch.StartNew();
 
 var registers = new Dictionary<char, uint>()
 {
-    { 'a', 0 },
+    { 'a', 1 },
     { 'b', 0 }
 };
 uint result = 0;
