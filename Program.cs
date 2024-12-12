@@ -56,8 +56,8 @@ var result = 0ul;
 
 var numbers = input.Split(Environment.NewLine).Select(int.Parse).ToArray();
 var sum = numbers.Sum();
-if (sum % 3 != 0) { throw new Exception(); }
-var target = sum / 3;
+if (sum % 4 != 0) { throw new Exception(); }
+var target = sum / 4;
 int ss = 0;
 int take = 100000;
 
@@ -72,10 +72,15 @@ foreach (var grp in groups)
     {
         var others2 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).OrderByDescending(x => x).ToList(), 0));
 
-        if (others2.Any())
+        foreach (var other2 in others2)
         {
-            result = grp.entanglement;
-            goto end;
+            var others3 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).Except(other2.set).OrderByDescending(x => x).ToList(), 0));
+
+            if (others3.Any())
+            {
+                result = grp.entanglement;
+                goto end;
+            }
         }
     }
 }
