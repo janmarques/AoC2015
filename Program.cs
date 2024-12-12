@@ -1,168 +1,109 @@
-﻿using System.ComponentModel;
-using System.Security.Cryptography;
+﻿var fullInput =
+@"jio a, +16
+inc a
+inc a
+tpl a
+tpl a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+tpl a
+tpl a
+inc a
+jmp +23
+tpl a
+inc a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+tpl a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+tpl a
+tpl a
+inc a
+jio a, +8
+inc b
+jie a, +4
+tpl a
+inc a
+jmp +2
+hlf a
+jmp -7";
 
+var smallInput =
+@"inc a
+jio a, +2
+tpl a
+inc a";
+
+var smallest = "";
+
+var input = smallInput;
+input = fullInput;
+//input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = int.MaxValue;
-
-var costs = new Dictionary<string, int>()
+var registers = new Dictionary<char, uint>()
 {
-    { "missile", 53},
-    { "drain", 73},
-    { "shield", 113},
-    { "poison", 173},
-    { "recharge", 229},
+    { 'a', 0 },
+    { 'b', 0 }
 };
-
-var pqSet = new HashSet<(string spell, int myHp, int myMana, int bossHp, int shieldTurns, int poisonTurns, int rechargeTurns, int manaSpent)>();
-
-var pq = new PriorityQueue<(string spell, int myHp, int myMana, int bossHp, int shieldTurns, int poisonTurns, int rechargeTurns, int manaSpent), int>();
-int BOSS_DAMAGE = 8;
-foreach (var item in costs.Keys)
+uint result = 0;
+var lines = input.Replace(",", "").Split(Environment.NewLine).Select(x => x.Split(' ')).ToArray();
+for (int i = 0; i < lines.Length; i++)
 {
-    var startState = (item, 50, 500, 55, 0, 0, 0, 0);
-    //var startState = (item, 10, 250, 14, 0, 0, 0, 0);
-    pq.Enqueue(startState, 0);
-}
+    var line = lines[i];
+    var op = line[0];
+    var b = line[1];
+    char bChar() => b.Single();
+    int bInt() => int.Parse(b);
+    int cInt() => int.Parse(line[2]);
 
-
-int i = 0;
-while (pq.Count > 0)
-{
-    var (spell, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent) = pq.Dequeue();
-    i++;
-    if (i % 100000 == 0)
+    switch (op)
     {
-        Console.WriteLine($"pq {pq.Count} state {manaSpent}");
-    }
-    var (simResult, myHpResult, myManaResult, bossHpResult, shieldTurnsResult, poisonTurnsResult, rechargeTurnsResult, manaSpentResult) = Simulate(spell, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    if (!simResult.HasValue)
-    {
-        if (manaSpentResult > result) { continue; }
-        foreach (var item in costs.Keys)
-        {
-            switch (item)
-            {
-                case "shield":
-                    if (shieldTurnsResult > 0) { continue; }
-                    break;
-                case "poison":
-                    if (poisonTurnsResult > 0) { continue; }
-                    break;
-                case "recharge":
-                    if (rechargeTurnsResult > 0) { continue; }
-                    break;
-            }
-            if (!pqSet.Contains((item, myHpResult, myManaResult, bossHpResult, shieldTurnsResult, poisonTurnsResult, rechargeTurnsResult, manaSpentResult)))
-            {
-                pq.Enqueue((item, myHpResult, myManaResult, bossHpResult, shieldTurnsResult, poisonTurnsResult, rechargeTurnsResult, manaSpentResult), manaSpentResult);
-            }
-        }
-    }
-    else if (simResult.Value)
-    {
-        // Won
-        result = Math.Min(result, manaSpentResult);
-        //break;
-    }
-    else
-    {
-        // Lost / impossible
+        case "hlf": registers[bChar()] /= 2; break;
+        case "tpl": registers[bChar()] *= 3; break;
+        case "inc": registers[bChar()] += 1; break;
+        case "jmp": i += bInt() - 1; break;
+        case "jie": if (registers[bChar()] % 2 == 0) { i += cInt() - 1; } break;
+        case "jio": if (registers[bChar()] == 1) { i += cInt() - 1; } break;
+        default:
+            throw new Exception();
+            break;
     }
 }
 
-(bool? won, int myHp, int myMana, int bossHp, int shieldTurns, int poisonTurns, int rechargeTurns, int manaSpent) Simulate(string spell, int myHp, int myMana, int bossHp, int shieldTurns, int poisonTurns, int rechargeTurns, int manaSpent)
-{
-    var armor = 0;
-    void RunEffects()
-    {
-        armor = 0;
-        if (shieldTurns > 0)
-        {
-            armor = 7;
-            shieldTurns--;
-        }
-        if (poisonTurns > 0)
-        {
-            bossHp -= 3;
-            poisonTurns--;
-        }
-        if (rechargeTurns > 0)
-        {
-            myMana += 101;
-            rechargeTurns--;
-        }
-    }
-
-    myHp -= 1;
-
-    if (myHp <= 0)
-    {
-        return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    }
-
-
-    if (costs[spell] > myMana)
-    {
-        return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    }
-
-    switch (spell)
-    {
-        case "missile":
-            bossHp -= 4;
-            break;
-        case "drain":
-            bossHp -= 2;
-            myHp += 2;
-            break;
-        case "shield":
-            if (shieldTurns > 1) { return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent); }
-            shieldTurns += 6;
-            break;
-        case "poison":
-            if (poisonTurns > 1) { return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent); }
-            poisonTurns += 6;
-            break;
-        case "recharge":
-            if (rechargeTurns > 1) { return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent); }
-            rechargeTurns += 5;
-            break;
-        default: throw new Exception();
-    }
-
-    myMana -= costs[spell];
-    manaSpent += costs[spell];
-
-    if (bossHp <= 0)
-    {
-        return (true, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-
-    }
-
-    RunEffects();
-    if (bossHp <= 0)
-    {
-        return (true, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    }
-    myHp -= Math.Max(1, BOSS_DAMAGE - armor);
-
-    if (myHp <= 0)
-    {
-        return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    }
-
-    RunEffects();
-    if (bossHp <= 0)
-    {
-        return (true, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-    }
-
-   
-    return (null, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
-}
+result = registers['b'];
 
 timer.Stop();
 Console.WriteLine(result);
 Console.WriteLine(timer.ElapsedMilliseconds + "ms");
 Console.ReadLine();
+
+void PrintGrid<T>(T[][] grid)
+{
+    for (int i = 0; i < grid.Length; i++)
+    {
+        for (int j = 0; j < grid[i].Length; j++)
+        {
+            Console.Write(grid[i][j]);
+        }
+        Console.WriteLine();
+    }
+}
