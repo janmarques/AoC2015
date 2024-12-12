@@ -59,22 +59,22 @@ var sum = numbers.Sum();
 if (sum % 4 != 0) { throw new Exception(); }
 var target = sum / 4;
 int ss = 0;
-int take = 100000;
+int take = 1;
 
 var groupsAA = TryMakeGroup(new List<int>(), numbers.OrderByDescending(x => x).ToList(), 0);
 var groups = Sanizite(take, groupsAA);
 
 foreach (var grp in groups)
 {
-    var others1 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).OrderByDescending(x => x).ToList(), 0));
+    var others1 = Sanizite(take, TryMakeGroup(new List<int>(), numbers.Except(grp.set).OrderByDescending(x => x).ToList(), 0));
 
     foreach (var other1 in others1)
     {
-        var others2 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).OrderByDescending(x => x).ToList(), 0));
+        var others2 = Sanizite(take, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).OrderByDescending(x => x).ToList(), 0));
 
         foreach (var other2 in others2)
         {
-            var others3 = Sanizite(100, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).Except(other2.set).OrderByDescending(x => x).ToList(), 0));
+            var others3 = Sanizite(take, TryMakeGroup(new List<int>(), numbers.Except(grp.set).Except(other1.set).Except(other2.set).OrderByDescending(x => x).ToList(), 0));
 
             if (others3.Any())
             {
