@@ -94,6 +94,14 @@ while (pq.Count > 0)
         }
     }
 
+    myHp -= 1;
+
+    if (myHp <= 0)
+    {
+        return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
+    }
+
+
     if (costs[spell] > myMana)
     {
         return (false, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
@@ -150,7 +158,7 @@ while (pq.Count > 0)
         return (true, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
     }
 
-
+   
     return (null, myHp, myMana, bossHp, shieldTurns, poisonTurns, rechargeTurns, manaSpent);
 }
 
