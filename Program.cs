@@ -48,40 +48,54 @@ input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = 0l;
+var result = 0ul;
 
-var sss = Entanglement(new HashSet<long> { 11, 9 });
 
-var numbers = input.Split(Environment.NewLine).Select(long.Parse).ToArray();
-if (numbers.Sum() % 3 != 0) { throw new Exception(); }
-var target = numbers.Sum() / 3;
+var sss = Product(new HashSet<ulong> { 11, 9 });
 
-var groups = TryMakeGroup(new HashSet<long>(), 0).Take(1000).Select(x => (set: x, count: x.Count, entanglement: Entanglement(x))).DistinctBy(x => x.entanglement).ToList();
+var numbers = input.Split(Environment.NewLine).Select(ulong.Parse).ToArray();
+var sum = Sum(numbers);
+if (sum % 3 != 0) { throw new Exception(); }
+var target = sum / 3;
 
-foreach (var item in groups.OrderBy(x => x.count).ThenBy(x => x.entanglement))
+var qqq = Enumerable.Range(0,100000).Select(x => numbers.OrderBy(x => Guid.NewGuid()).Take(5)).Where(x => Sum(x) == target).ToList();
+
+var groups = TryMakeGroup(new HashSet<ulong>(), 0).Take(100_000_000).Select(x => (set: x, count: x.Count, entanglement: Product(x), hash: Hash(x))).DistinctBy(x => x.hash).OrderBy(x => x.count).ThenBy(x => x.entanglement).ToList();
+foreach (var item in groups)
 {
-    var compatible = groups.Where(x => item.set.All(y => x.entanglement % y == 0)).Count();
-    if (compatible == 2)
+    var forbidden = new HashSet<ulong>(item.set);
+    for (int i = 0; i < 2; i++)
     {
-        result = item.entanglement;
-        break;
+        var compatible = groups.Where(x => forbidden.All(y => x.entanglement % y != 0)).FirstOrDefault();
+        if (compatible == default) { goto next; }
+        foreach (var item1 in compatible.set)
+        {
+            forbidden.Add(item1);
+        }
     }
+    break;
+next:;
 }
 
-long Entanglement(HashSet<long> set) => set.Aggregate(1l, (x, y) => y = x * y);
+ulong Product(HashSet<ulong> set) => set.Aggregate(1ul, (x, y) => y = x * y);
+string Hash(HashSet<ulong> set) => string.Join("|", set.OrderBy(x => x));
+ulong Sum(IEnumerable<ulong> set) => set.Aggregate(0ul, (x, y) => y = x + y);
 
-IEnumerable<HashSet<long>> TryMakeGroup(HashSet<long> used, long sum)
+IEnumerable<HashSet<ulong>> TryMakeGroup(HashSet<ulong> used, ulong sum)
 {
-    if(sum > target) { yield break; }
     foreach (var number in numbers)
     {
         if (used.Contains(number))
         {
             continue;
         }
-        var newUsed = new HashSet<long>(used);
+        var newUsed = new HashSet<ulong>(used);
         newUsed.Add(number);
         var newSum = sum + number;
+        if (newSum > target)
+        {
+        }
+        else
         if (newSum == target)
         {
             yield return newUsed;
@@ -99,7 +113,7 @@ IEnumerable<HashSet<long>> TryMakeGroup(HashSet<long> used, long sum)
 
 
 timer.Stop();
-Console.WriteLine(result);
+Console.WriteLine(result); // 42093166160081598 too high
 Console.WriteLine(timer.ElapsedMilliseconds + "ms");
 Console.ReadLine();
 
