@@ -1,95 +1,85 @@
 ﻿var fullInput =
-@"jio a, +16
-inc a
-inc a
-tpl a
-tpl a
-tpl a
-inc a
-inc a
-tpl a
-inc a
-inc a
-tpl a
-tpl a
-tpl a
-inc a
-jmp +23
-tpl a
-inc a
-inc a
-tpl a
-inc a
-inc a
-tpl a
-tpl a
-inc a
-inc a
-tpl a
-inc a
-tpl a
-inc a
-tpl a
-inc a
-inc a
-tpl a
-inc a
-tpl a
-tpl a
-inc a
-jio a, +8
-inc b
-jie a, +4
-tpl a
-inc a
-jmp +2
-hlf a
-jmp -7";
+@"1
+2
+3
+7
+11
+13
+17
+19
+23
+31
+37
+41
+43
+47
+53
+59
+61
+67
+71
+73
+79
+83
+89
+97
+101
+103
+107
+109
+113";
 
 var smallInput =
-@"inc a
-jio a, +2
-tpl a
-inc a";
+@"1
+2
+3
+4
+5
+7
+8
+9
+10
+11";
 
 var smallest = "";
 
 var input = smallInput;
-input = fullInput;
+//input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var registers = new Dictionary<char, uint>()
-{
-    { 'a', 1 },
-    { 'b', 0 }
-};
-uint result = 0;
-var lines = input.Replace(",", "").Split(Environment.NewLine).Select(x => x.Split(' ')).ToArray();
-for (int i = 0; i < lines.Length; i++)
-{
-    var line = lines[i];
-    var op = line[0];
-    var b = line[1];
-    char bChar() => b.Single();
-    int bInt() => int.Parse(b);
-    int cInt() => int.Parse(line[2]);
+var result = 0;
 
-    switch (op)
+var numbers = input.Split(Environment.NewLine).Select(int.Parse).ToArray();
+
+if (numbers.Sum() % 3 != 0) { throw new Exception(); }
+var target = numbers.Sum() / 3;
+
+var minNumbersPerGroup = 0;
+while (true)
+{
+    minNumbersPerGroup++;
+    if (numbers.TakeLast(minNumbersPerGroup).Sum() >= target)
     {
-        case "hlf": registers[bChar()] /= 2; break;
-        case "tpl": registers[bChar()] *= 3; break;
-        case "inc": registers[bChar()] += 1; break;
-        case "jmp": i += bInt() - 1; break;
-        case "jie": if (registers[bChar()] % 2 == 0) { i += cInt() - 1; } break;
-        case "jio": if (registers[bChar()] == 1) { i += cInt() - 1; } break;
-        default:
-            throw new Exception();
-            break;
+        break;
     }
 }
 
-result = registers['b'];
+while (true)
+{
+    var i = minNumbersPerGroup;
+    var selected = new HashSet<int>();  
+    do
+    {
+
+        selected.Add(i);
+        i--;
+    } while (i >= 0);
+}
+foreach (var line in input.Split(Environment.NewLine))
+{
+
+}
 
 timer.Stop();
 Console.WriteLine(result);
