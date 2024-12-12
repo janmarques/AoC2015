@@ -44,42 +44,59 @@ var smallInput =
 var smallest = "";
 
 var input = smallInput;
-//input = fullInput;
+input = fullInput;
 //input = smallest;
 var timer = System.Diagnostics.Stopwatch.StartNew();
 
-var result = 0;
+var result = 0l;
 
-var numbers = input.Split(Environment.NewLine).Select(int.Parse).ToArray();
+var sss = Entanglement(new HashSet<long> { 11, 9 });
 
+var numbers = input.Split(Environment.NewLine).Select(long.Parse).ToArray();
 if (numbers.Sum() % 3 != 0) { throw new Exception(); }
 var target = numbers.Sum() / 3;
 
-var minNumbersPerGroup = 0;
-while (true)
+var groups = TryMakeGroup(new HashSet<long>(), 0).Take(1000).Select(x => (set: x, count: x.Count, entanglement: Entanglement(x))).DistinctBy(x => x.entanglement).ToList();
+
+foreach (var item in groups.OrderBy(x => x.count).ThenBy(x => x.entanglement))
 {
-    minNumbersPerGroup++;
-    if (numbers.TakeLast(minNumbersPerGroup).Sum() >= target)
+    var compatible = groups.Where(x => item.set.All(y => x.entanglement % y == 0)).Count();
+    if (compatible == 2)
     {
+        result = item.entanglement;
         break;
     }
 }
 
-while (true)
+long Entanglement(HashSet<long> set) => set.Aggregate(1l, (x, y) => y = x * y);
+
+IEnumerable<HashSet<long>> TryMakeGroup(HashSet<long> used, long sum)
 {
-    var i = minNumbersPerGroup;
-    var selected = new HashSet<int>();  
-    do
+    if(sum > target) { yield break; }
+    foreach (var number in numbers)
     {
-
-        selected.Add(i);
-        i--;
-    } while (i >= 0);
+        if (used.Contains(number))
+        {
+            continue;
+        }
+        var newUsed = new HashSet<long>(used);
+        newUsed.Add(number);
+        var newSum = sum + number;
+        if (newSum == target)
+        {
+            yield return newUsed;
+        }
+        else
+        {
+            foreach (var item in TryMakeGroup(newUsed, newSum))
+            {
+                yield return item;
+            }
+        }
+    }
 }
-foreach (var line in input.Split(Environment.NewLine))
-{
 
-}
+
 
 timer.Stop();
 Console.WriteLine(result);
